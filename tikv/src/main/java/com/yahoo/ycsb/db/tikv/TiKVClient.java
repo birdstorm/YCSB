@@ -3,6 +3,7 @@ package com.yahoo.ycsb.db.tikv;
 import com.yahoo.ycsb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tikv.common.exception.TiKVException;
 import org.tikv.kvproto.Kvrpcpb;
 import org.tikv.raw.RawKVClient;
 import shade.com.google.protobuf.ByteString;
@@ -32,7 +33,7 @@ public class TiKVClient extends DB {
         LOGGER.info("TiKV Client initializing...");
         try {
           tikv = initKVRawClient();
-        } catch (final IOException e) {
+        } catch (final TiKVException e) {
           throw new DBException(e);
         }
       }
@@ -46,7 +47,7 @@ public class TiKVClient extends DB {
    *
    * @return The initialized and open TiKV instance.
    */
-  private RawKVClient initKVRawClient() throws IOException {
+  private RawKVClient initKVRawClient() throws TiKVException {
     return RawKVClient.create("127.0.0.1:2379");
   }
 
@@ -58,7 +59,7 @@ public class TiKVClient extends DB {
       LOGGER.info("TiKV Client closing...");
       try {
         ((Closeable) tikv).close();
-      } catch (final Exception e) {
+      } catch (final TiKVException | IOException e) {
         throw new DBException(e);
       }
     }
