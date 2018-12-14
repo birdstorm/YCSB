@@ -58,8 +58,8 @@ public class TiKVClient extends DB {
     synchronized (TiKVClient.class) {
       LOGGER.info("TiKV Client closing...");
       try {
-        ((Closeable) tikv).close();
-      } catch (final TiKVException | IOException e) {
+        tikv.close();
+      } catch (final TiKVException e) {
         throw new DBException(e);
       }
     }
