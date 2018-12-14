@@ -29,6 +29,7 @@ public class TiKVClient extends DB {
   public void init() throws DBException {
     synchronized(TiKVClient.class) {
       if(tikv == null) {
+        LOGGER.info("TiKV Client initializing...");
         try {
           tikv = initKVRawClient();
         } catch (final IOException e) {
@@ -54,8 +55,9 @@ public class TiKVClient extends DB {
     super.cleanup();
 
     synchronized (TiKVClient.class) {
+      LOGGER.info("TiKV Client closing...");
       try {
-//        ((Closeable) tikv).close();
+        ((Closeable) tikv).close();
       } catch (final Exception e) {
         throw new DBException(e);
       }
