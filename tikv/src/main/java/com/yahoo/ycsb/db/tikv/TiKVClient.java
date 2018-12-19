@@ -22,6 +22,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class TiKVClient extends DB {
 
+  private static final String PD_ADDRESSES = "tikv.pd.addresses";
+
+  private static final String DEFAULT_PD_ADDRESSES = "127.0.0.1:2379";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TiKVClient.class);
 
   @GuardedBy("TiKVClient.class") private static RawKVClient tikv = null;
@@ -32,7 +36,8 @@ public class TiKVClient extends DB {
       if(tikv == null) {
         LOGGER.info("TiKV Client initializing...");
         try {
-          tikv = initKVRawClient();
+          String pdAddr = getProperties().getProperty(PD_ADDRESSES, DEFAULT_PD_ADDRESSES);
+          tikv = initKVRawClient(pdAddr);
         } catch (final TiKVException e) {
           throw new DBException(e);
         }
@@ -47,8 +52,8 @@ public class TiKVClient extends DB {
    *
    * @return The initialized and open TiKV instance.
    */
-  private RawKVClient initKVRawClient() throws TiKVException {
-    return RawKVClient.create("127.0.0.1:2379");
+  private RawKVClient initKVRawClient(String pdAddr) throws TiKVException {
+    return RawKVClient.create(pdAddr);
   }
 
   @Override
