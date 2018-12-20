@@ -28,7 +28,7 @@ public class TiKVClient extends DB {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TiKVClient.class);
 
-  @GuardedBy("TiKVClient.class") private static RawKVClient tikv = null;
+  @GuardedBy("TiKVClient.class") private RawKVClient tikv = null;
 
   @Override
   public void init() throws DBException {
