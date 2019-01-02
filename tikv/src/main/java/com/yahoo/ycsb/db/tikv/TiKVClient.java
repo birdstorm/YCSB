@@ -3,6 +3,8 @@ package com.yahoo.ycsb.db.tikv;
 import com.yahoo.ycsb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tikv.common.TiConfiguration;
+import org.tikv.common.TiSession;
 import org.tikv.common.exception.TiKVException;
 import org.tikv.kvproto.Kvrpcpb;
 import org.tikv.raw.RawKVClient;
@@ -53,7 +55,8 @@ public class TiKVClient extends DB {
    * @return The initialized and open TiKV instance.
    */
   private RawKVClient initKVRawClient(String pdAddr) throws TiKVException {
-    return RawKVClient.create(pdAddr);
+    TiSession session = TiSession.create(TiConfiguration.createDefault(pdAddr));
+    return session.createRawClient();
   }
 
   @Override
