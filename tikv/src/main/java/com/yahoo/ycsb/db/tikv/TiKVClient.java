@@ -55,7 +55,7 @@ public class TiKVClient extends DB {
    * @return The initialized and open TiKV instance.
    */
   private RawKVClient initKVRawClient(String pdAddr) throws TiKVException {
-    TiSession session = TiSession.create(TiConfiguration.createDefault(pdAddr));
+    TiSession session = TiSession.create(TiConfiguration.createRawDefault(pdAddr));
     return session.createRawClient();
   }
 
