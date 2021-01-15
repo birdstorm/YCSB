@@ -108,7 +108,7 @@ LICENSE file.
     <tarantool.version>1.6.5</tarantool.version>
     <thrift.version>0.8.0</thrift.version>
     <voldemort.version>0.81</voldemort.version>
-    <tikv.version>2.0-SNAPSHOT</tikv.version>
+    <tikv.version>3.0.2-SNAPSHOT</tikv.version>
   </properties>
 
   <modules>
