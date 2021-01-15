@@ -81,7 +81,7 @@ public class TiKVClient extends DB {
   public Status read(final String table, final String key, final Set<String> fields,
                      final Map<String, ByteIterator> result) {
     try {
-      LOGGER.info("read table " + table + " key" + key);
+      LOGGER.debug("read table " + table + " key" + key);
       final ByteString values = tikv.get(getRowKey(table, key));
       if(values == null) {
         return Status.NOT_FOUND;
@@ -98,7 +98,7 @@ public class TiKVClient extends DB {
   public Status scan(final String table, final String startKey, final int recordcount, final Set<String> fields,
                      final Vector<HashMap<String, ByteIterator>> result) {
     try {
-      LOGGER.info("scanning table " + table + " startKey " + startKey);
+      LOGGER.debug("scanning table " + table + " startKey " + startKey);
       List<Kvrpcpb.KvPair> pairs = tikv.scan(getRowKey(table, startKey), recordcount);
       for (Kvrpcpb.KvPair pair: pairs) {
         final HashMap<String, ByteIterator> values = new HashMap<>();
@@ -117,7 +117,7 @@ public class TiKVClient extends DB {
     //TODO(AR) consider if this would be faster with merge operator
 
     try {
-      LOGGER.info("update table " + table + " key " + key);
+      LOGGER.debug("update table " + table + " key " + key);
       final Map<String, ByteIterator> result = new HashMap<>();
       final ByteString currentValues = tikv.get(getRowKey(table, key));
       if(currentValues == null) {
@@ -142,7 +142,7 @@ public class TiKVClient extends DB {
   @Override
   public Status insert(final String table, final String key, final Map<String, ByteIterator> values) {
     try {
-      LOGGER.info("insert table " + table + " key " + key);
+      LOGGER.debug("insert table " + table + " key " + key);
       tikv.put(getRowKey(table, key), serializeValues(values));
 
       return Status.OK;
@@ -155,7 +155,7 @@ public class TiKVClient extends DB {
   @Override
   public Status delete(final String table, final String key) {
     try {
-      LOGGER.info("delete table " + table + " key " + key);
+      LOGGER.debug("delete table " + table + " key " + key);
       tikv.delete(getRowKey(table, key));
 
       return Status.OK;
