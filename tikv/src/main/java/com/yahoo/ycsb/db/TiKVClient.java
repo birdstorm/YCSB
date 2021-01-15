@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.db.tikv;
+package com.yahoo.ycsb.db;
 
 import com.yahoo.ycsb.*;
 import org.slf4j.Logger;
