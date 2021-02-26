@@ -591,14 +591,20 @@ public class CoreWorkload extends Workload {
    */
   @Override
   public boolean doInsert(DB db, Object threadstate) {
-    int keynum = keysequence.nextValue().intValue();
-    String dbkey = buildKeyName(keynum);
-    HashMap<String, ByteIterator> values = buildValues(dbkey);
+    Vector<Map<String, ByteIterator>> valuesVector = new Vector<>();
+    Vector<String> dbKeys = new Vector<>();
+    for (int i = 0; i < 1000; i++) {
+      int keynum = keysequence.nextValue().intValue();
+      String dbkey = buildKeyName(keynum);
+      HashMap<String, ByteIterator> values = buildValues(dbkey);
+      dbKeys.add(dbkey);
+      valuesVector.add(values);
+    }
 
     Status status;
     int numOfRetries = 0;
     do {
-      status = db.insert(table, dbkey, values);
+      status = db.batchInsert(table, dbKeys, valuesVector);
       if (null != status && status.isOk()) {
         break;
       }

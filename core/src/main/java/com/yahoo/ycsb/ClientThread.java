@@ -153,7 +153,7 @@ public class ClientThread implements Runnable {
     //throttle the operations
     if (targetOpsPerMs > 0) {
       // delay until next tick
-      long deadline = startTimeNanos + opsdone * targetOpsTickNs;
+      long deadline = startTimeNanos + opsdone * targetOpsTickNs + 5000000000L;
       sleepUntil(deadline);
       measurements.setIntendedStartTimeNs(deadline);
     }
