@@ -104,14 +104,11 @@ public class TiKVClient extends DB {
     try {
       LOGGER.debug("scanning table " + table + " startKey " + startKey);
       List<Kvrpcpb.KvPair> pairs = tikv.scan(getRowKey(table, startKey), recordcount);
-      Map<ByteString, ByteString> map = new HashMap<>();
       for (Kvrpcpb.KvPair pair: pairs) {
         final HashMap<String, ByteIterator> values = new HashMap<>();
         deserializeValues(pair.getValue(), fields, values);
         result.add(values);
-        map.put(pair.getKey(), pair.getValue());
       }
-      tikv.batchPut(map);
       return Status.OK;
     } catch(final Exception e) {
       LOGGER.error(e.getMessage(), e);
@@ -156,6 +153,24 @@ public class TiKVClient extends DB {
       LOGGER.debug("insert table " + table + " key " + key);
       tikv.put(getRowKey(table, key), serializeValues(values));
 
+      return Status.OK;
+    } catch(final Exception e) {
+      LOGGER.error(e.getMessage(), e);
+      return Status.ERROR;
+    }
+  }
+
+  @Override
+  public Status batchInsert(final String table, final Vector<String> keys,
+                            final Vector<Map<String, ByteIterator>> valuesVector) {
+    try {
+      LOGGER.debug("insert table " + table + " key " + keys);
+
+      Map<ByteString, ByteString> map = new HashMap<>();
+      for (int i = 0; i < keys.size(); i++) {
+        map.put(getRowKey(table, keys.get(i)), serializeValues(valuesVector.get(i)));
+      }
+      tikv.batchPut(map);
       return Status.OK;
     } catch(final Exception e) {
       LOGGER.error(e.getMessage(), e);

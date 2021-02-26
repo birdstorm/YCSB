@@ -42,7 +42,7 @@ import java.util.Vector;
  * target application.  For the sake of comparison between experiments we also 
  * recommend you explain the semantics you chose when presenting performance results.
  */
-public abstract class DB {
+public class DB {
   /**
    * Properties for configuring this DB.
    */
@@ -86,7 +86,9 @@ public abstract class DB {
    * @param result A HashMap of field/value pairs for the result
    * @return The result of the operation.
    */
-  public abstract Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result);
+  public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
+    return Status.NOT_IMPLEMENTED;
+  }
 
   /**
    * Perform a range scan for a set of records in the database. Each field/value pair from the result will be stored
@@ -99,8 +101,10 @@ public abstract class DB {
    * @param result A Vector of HashMaps, where each HashMap is a set field/value pairs for one record
    * @return The result of the operation.
    */
-  public abstract Status scan(String table, String startkey, int recordcount, Set<String> fields,
-                              Vector<HashMap<String, ByteIterator>> result);
+  public Status scan(String table, String startkey, int recordcount, Set<String> fields,
+                              Vector<HashMap<String, ByteIterator>> result) {
+    return Status.NOT_IMPLEMENTED;
+  }
 
   /**
    * Update a record in the database. Any field/value pairs in the specified values HashMap will be written into the
@@ -111,7 +115,9 @@ public abstract class DB {
    * @param values A HashMap of field/value pairs to update in the record
    * @return The result of the operation.
    */
-  public abstract Status update(String table, String key, Map<String, ByteIterator> values);
+  public Status update(String table, String key, Map<String, ByteIterator> values) {
+    return Status.NOT_IMPLEMENTED;
+  }
 
   /**
    * Insert a record in the database. Any field/value pairs in the specified values HashMap will be written into the
@@ -122,8 +128,13 @@ public abstract class DB {
    * @param values A HashMap of field/value pairs to insert in the record
    * @return The result of the operation.
    */
-  public abstract Status insert(String table, String key, Map<String, ByteIterator> values);
+  public Status insert(String table, String key, Map<String, ByteIterator> values) {
+    return Status.NOT_IMPLEMENTED;
+  }
 
+  public Status batchInsert(String table, Vector<String> key, Vector<Map<String, ByteIterator>> values) {
+    return Status.NOT_IMPLEMENTED;
+  }
   /**
    * Delete a record from the database.
    *
@@ -131,5 +142,7 @@ public abstract class DB {
    * @param key The record key of the record to delete.
    * @return The result of the operation.
    */
-  public abstract Status delete(String table, String key);
+  public Status delete(String table, String key) {
+    return Status.NOT_IMPLEMENTED;
+  }
 }
