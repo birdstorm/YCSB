@@ -8,7 +8,7 @@ import org.tikv.common.TiSession;
 import org.tikv.common.exception.TiKVException;
 import org.tikv.kvproto.Kvrpcpb;
 import org.tikv.raw.RawKVClient;
-import shade.com.google.protobuf.ByteString;
+import org.tikv.shade.com.google.protobuf.ByteString;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.*;
@@ -30,6 +30,8 @@ public class TiKVClient extends DB {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TiKVClient.class);
 
+  private static TiSession session = null;
+
   @GuardedBy("TiKVClient.class") private RawKVClient tikv = null;
 
   @Override
@@ -39,7 +41,8 @@ public class TiKVClient extends DB {
         LOGGER.info("TiKV Client initializing...");
         try {
           String pdAddr = getProperties().getProperty(PD_ADDRESSES, DEFAULT_PD_ADDRESSES);
-          tikv = initKVRawClient(pdAddr);
+          session = TiSession.getInstance(TiConfiguration.createRawDefault(pdAddr));
+          tikv = session.createRawClient();
         } catch (final TiKVException e) {
           throw new DBException(e);
         }
@@ -55,8 +58,8 @@ public class TiKVClient extends DB {
    * @return The initialized and open TiKV instance.
    */
   private RawKVClient initKVRawClient(String pdAddr) throws TiKVException {
-    TiSession session = TiSession.getInstance(TiConfiguration.createRawDefault(pdAddr));
-    return session.createRawClient();
+    TiSession tiSession = TiSession.getInstance(TiConfiguration.createRawDefault(pdAddr));
+    return tiSession.createRawClient();
   }
 
   @Override
@@ -66,6 +69,7 @@ public class TiKVClient extends DB {
     synchronized (TiKVClient.class) {
       LOGGER.info("TiKV Client closing...");
       try {
+        LOGGER.info("Current cache miss rate: " + session.getRegionManager().cacheMiss());
         tikv.close();
       } catch (final TiKVException e) {
         throw new DBException(e);
@@ -100,11 +104,14 @@ public class TiKVClient extends DB {
     try {
       LOGGER.debug("scanning table " + table + " startKey " + startKey);
       List<Kvrpcpb.KvPair> pairs = tikv.scan(getRowKey(table, startKey), recordcount);
+      Map<ByteString, ByteString> map = new HashMap<>();
       for (Kvrpcpb.KvPair pair: pairs) {
         final HashMap<String, ByteIterator> values = new HashMap<>();
         deserializeValues(pair.getValue(), fields, values);
         result.add(values);
+        map.put(pair.getKey(), pair.getValue());
       }
+      tikv.batchPut(map);
       return Status.OK;
     } catch(final Exception e) {
       LOGGER.error(e.getMessage(), e);
@@ -119,6 +126,7 @@ public class TiKVClient extends DB {
     try {
       LOGGER.debug("update table " + table + " key " + key);
       final Map<String, ByteIterator> result = new HashMap<>();
+      //final ByteString currentValues = tikv.batchGet(ImmutableList.of(getRowKey(table, key))).get(0).getValue();
       final ByteString currentValues = tikv.get(getRowKey(table, key));
       if(currentValues == null) {
         return Status.NOT_FOUND;
@@ -129,6 +137,9 @@ public class TiKVClient extends DB {
       result.putAll(values);
 
       //store
+      //Map<ByteString, ByteString> map = new HashMap<>();
+      //map.put(getRowKey(table, key), serializeValues(result));
+      //tikv.batchPut(map);
       tikv.put(getRowKey(table, key), serializeValues(result));
 
       return Status.OK;
