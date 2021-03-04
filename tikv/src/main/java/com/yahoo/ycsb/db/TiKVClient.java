@@ -37,7 +37,7 @@ public class TiKVClient extends DB {
   @Override
   public void init() throws DBException {
     synchronized(TiKVClient.class) {
-      if(tikv == null) {
+      if (tikv == null) {
         LOGGER.info("TiKV Client initializing...");
         try {
           String pdAddr = getProperties().getProperty(PD_ADDRESSES, DEFAULT_PD_ADDRESSES);
