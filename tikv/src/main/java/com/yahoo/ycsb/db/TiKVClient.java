@@ -41,7 +41,9 @@ public class TiKVClient extends DB {
         LOGGER.info("TiKV Client initializing...");
         try {
           String pdAddr = getProperties().getProperty(PD_ADDRESSES, DEFAULT_PD_ADDRESSES);
-          session = TiSession.getInstance(TiConfiguration.createRawDefault(pdAddr));
+          TiConfiguration conf = TiConfiguration.createRawDefault(pdAddr);
+          conf.setEnableMetrics(true);
+          session = TiSession.getInstance(conf);
           tikv = session.createRawClient();
         } catch (final TiKVException e) {
           throw new DBException(e);
